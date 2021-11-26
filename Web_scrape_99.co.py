@@ -1,7 +1,8 @@
 #! python3
 #Web_scrape_99.co.py scrapes 99.co website for predicting house prices
+
 import pandas as pd
-import requests, bs4, csv , re, datetime
+import requests, bs4, datetime, csv
 
 # 99.co Robots.txt
 # User-agent: trovitBot
@@ -80,6 +81,8 @@ DevelopmentNeighbourhood = ['Development Neighbourhood']
 Size = ['Size']
 Toilets = ['Number of Toilets']
 Misc_details = ['Misc Details']
+Misc_details2 = ['Everything in Property Details and Development Overview']
+SpecialProperties = ['Closeness to MRT and Insights']
 
 # HDB site : https://www.99.co/singapore/sale/hdb
 # Condo site : https://www.99.co/singapore/sale/condos-apartments
@@ -116,7 +119,7 @@ for index, listing in enumerate(results):
     print('--' * 30)
     print('Entering Main Loop in Listing, index number ', index)
     print('--' * 30,'\n')
-    if index > 5:
+    if index > 10:
         break
     else:
         #there should only be one link in the div class above
@@ -154,18 +157,36 @@ for index, result_link in enumerate(Web_link):
         listing_result_data_price = listing_result_data.select_one('h2', class_='_1zGm8 _3na6W _1vzK2').getText()
         print('Price is ', listing_result_data_price)
         listing_result_data_name = listing_result_data.select_one('h1', class_='_3Wogd JMF8h lFqTi _1vzK2').getText()
+
         #Getting all text data in tag 'p', class_='_2sIc2 _29qfj _2rhE-'.
         #This includes the number of bedrooms, bathrooms, area space etc
         listing_result_data_Misc = listing_result_data.find_all('p', class_="_2sIc2 _29qfj _2rhE-")
-        #temp_string = ''
         temp_list = [p.getText() for p in listing_result_data_Misc]
-            # print(p.getText())
-            # temp_string = ' , '.join(p.getText())
         print(temp_list)
         Misc_details.append(temp_list)
+
         print('Price is ',listing_result_data_price)
         print('Name of property is ', listing_result_data_name)
         Price.append(listing_result_data_price)
+
+        # Everything in Property Details and Development Overview
+        listing_result_data_Misc2 = listing_result_data.find_all('div', class_='_2dry3')
+        temp_list2 = [tag.getText() for tag in listing_result_data_Misc2]
+        print('Everything in Property Details and Development Overview ', temp_list2)
+        Misc_details2.append(temp_list2)
+
+        # Amentities
+        listing_result_data_Amenities = listing_result_data.find_all('div', class_="_3atmT")
+        temp_list3 = [p.getText() for p in listing_result_data_Amenities]
+        print('Amentities ', temp_list3)
+        Amenities.append(temp_list3)
+
+        # MRT
+        listing_result_data_SpecialProperties = listing_result_data.find_all('p', class_="_2sIc2 _2rhE- _1c-pJ")
+        temp_list4 = [p.getText() for p in listing_result_data_SpecialProperties]
+        print('MRT ', temp_list4)
+        SpecialProperties.append(temp_list4)
+
 
 def inspect_values_inlist(a_list, number):
     print('Print first ', number ,' Results of ', a_list[0])
@@ -174,13 +195,47 @@ def inspect_values_inlist(a_list, number):
         print(a_list[i])
     print('\n')
 
+# Inspect first 5 values....
 inspect_values_inlist(NameOfProperty, 5)
 inspect_values_inlist(Price, 5)
 inspect_values_inlist(Web_link, 5)
 inspect_values_inlist(Misc_details,5)
-
+inspect_values_inlist(Misc_details2,5)
+inspect_values_inlist(Amenities,5)
+inspect_values_inlist(SpecialProperties,5)
 
 # Expected output should be 34. There are promoted listings that are not captured which is good
 
 #print('Number of results is ', str(len(result)))
 #print('Printing searches of result ', result[0])
+
+# df = pd.DataFrame(columns = [NameOfProperty,
+#                   Price,
+#                   Web_link,
+#                   Misc_details,
+#                   Misc_details2,
+#                   Amenities,
+#                   SpecialProperties])
+
+data = zip(*(NameOfProperty,
+            Price,
+            Web_link,
+            Misc_details,
+            Misc_details2,
+            Amenities,
+            SpecialProperties))
+
+file = open("99co_scrape_{}.csv".format(datetime.date.today()), 'w', newline='', encoding='utf-8')
+wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+for item in data:
+    wr.writerow(item)
+
+# df = pd.DataFrame(data)
+# df_T = df.transpose()
+#
+# print(df.head())
+#
+# print(df_T.head())
+#
+# df.to_csv('99co_scrape_{}.csv'.format(datetime.date.today()),
+#           index = False)
