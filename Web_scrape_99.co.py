@@ -2,7 +2,7 @@
 # Web_scrape_99.co.py scrapes 99.co website for predicting house prices
 
 import pandas as pd
-import requests, bs4, datetime, csv, re
+import requests, bs4, datetime, csv, time
 
 # 99.co Robots.txt
 # User-agent: trovitBot
@@ -99,12 +99,15 @@ website_links = ['https://www.99.co/singapore/sale/hdb',
                  'https://www.99.co/singapore/sale/houses',
                  'https://www.99.co/singapore/sale/executive-condominiums']
 
-link = website_links[0]
+link = website_links[2]
 first_page_bool = True
 page_counter = 2
 
 
 # 'https://www.99.co/singapore/sale/hdb?page_num=2'
+# 'https://www.99.co/singapore/sale/condos-apartments?page_num=3'
+# 'https://www.99.co/singapore/sale/executive-condominiums?page_num=2'
+# 'https://www.99.co/singapore/sale/houses?page_num=2'
 
 def write_output():
     data = zip(*(NameOfProperty,
@@ -224,7 +227,7 @@ def listing_loop(link):
 # if not first page -> Checks page counter
 # if page counter < specified number, fetch next link and run listing loop function
 
-def __main__():
+def run_main_sequence():
     global page_counter, hdb_next_link
     print('First page bool status is ', first_page_bool)
     print('Page counter is ', page_counter)
@@ -238,34 +241,19 @@ def __main__():
     print('First page bool status is ', first_page_bool)
     print('Page counter is ', page_counter)
 
-    while page_counter <228 :
+    while page_counter <201 :
 
-        hdb_next_link = website_main_link + '/singapore/sale/hdb?page_num=' + str(page_counter)
+        hdb_next_link = website_main_link + '/singapore/sale/houses?page_num=' + str(page_counter)
+        time.sleep(10)
         print('*-' * 30)
         print('Attempting next link ', hdb_next_link)
         print('*-' * 30, '\n')
         listing_loop(hdb_next_link)
         page_counter += 1
 
-# End of one category
-# reset to first page status
-# first_page_bool = True
-# page_counter = 2
+def main():
+    run_main_sequence()
+    # Outputs to csv
+    write_output()
 
-__main__()
-
-print('\n', '*-' * 30)
-print('All Done')
-print('*-' * 30, '\n')
-
-# Inspect first 5 values....
-inspect_values_inlist(NameOfProperty, 5)
-inspect_values_inlist(Price, 5)
-inspect_values_inlist(Web_link, 5)
-inspect_values_inlist(Misc_details, 5)
-inspect_values_inlist(Misc_details2, 5)
-inspect_values_inlist(Amenities, 5)
-inspect_values_inlist(SpecialProperties, 5)
-
-# Outputs to csv
-write_output()
+main()
