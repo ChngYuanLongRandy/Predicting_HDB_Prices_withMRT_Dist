@@ -1,0 +1,26 @@
+Amelia
+- The Facing should be a feature should have high variance however there is not much difference
+	- e.g Within South West in Sebawang it would be lower than the prices in Bishan
+
+- Compare against another feature, facing vs district for example (feature engineering)
+
+Sze Kong
+- Variance for the scrapped data is not significant enough
+- Exploring on the possibility of Distance to MRT as a feature
+
+- Can do two models and then see which one is better
+
+Cheryl
+- Dataset does not tell us the information that we are looking for. 
+	- No variance in the dataset so it might not be helpful
+
+Rachel
+- Concerned on missing data , should we drop it?, run with two dataset set? One with about 1 thousand and another
+one with empty values.
+
+
+Randy
+ - Issue with missing values
+	- Unable to Proceed without dropping these features
+
+Conclusion: Switched to HDB Gov dataset

@@ -99,7 +99,7 @@ website_links = ['https://www.99.co/singapore/sale/hdb',
                  'https://www.99.co/singapore/sale/houses',
                  'https://www.99.co/singapore/sale/executive-condominiums']
 
-link = website_links[2]
+link = website_links[3]
 first_page_bool = True
 page_counter = 2
 
@@ -241,9 +241,9 @@ def run_main_sequence():
     print('First page bool status is ', first_page_bool)
     print('Page counter is ', page_counter)
 
-    while page_counter <201 :
+    while page_counter <50 :
 
-        hdb_next_link = website_main_link + '/singapore/sale/houses?page_num=' + str(page_counter)
+        hdb_next_link = website_main_link + '/singapore/sale/executive-condominiums?page_num=' + str(page_counter)
         time.sleep(10)
         print('*-' * 30)
         print('Attempting next link ', hdb_next_link)
