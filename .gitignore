@@ -1,5 +1,8 @@
 *.csv
 !HDBdata with district_coord_dist_full.csv
+
+*.xlsx
+
 *.png
 99*
 *_pkl
