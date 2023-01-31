@@ -1,0 +1,11 @@
+specs:
+  increment: 10000
+  data_gov_api : https://data.gov.sg/api/action/datastore_search
+  write_file_name : 'latest_data.csv'
+
+resource_mapping:
+  Jan2017-Beyond : f1765b54-a209-4718-8d38-a39237f502b3
+  Jan2015-Dec2016 : 1b702208-44bf-4829-b620-4615ee19b57c
+  Mar2012-Dec2014 : 83b2fc37-ce8c-4df4-968b-370fd818138b
+  Yr2000-Feb2012 : 8c00bf08-9124-479e-aeca-7cc411d884c4
+  Yr1990-1999 : adbbddd3-30e2-445f-a123-29bee150a6fe
