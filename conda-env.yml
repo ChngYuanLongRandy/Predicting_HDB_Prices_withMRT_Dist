@@ -1,0 +1,7 @@
+name: hdb-env
+channels:
+  - default
+dependencies:
+  - python=3.9
+  - pip:
+    - -r requirements.txt
