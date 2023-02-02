@@ -1,0 +1,13 @@
+pandas
+matplotlib
+seaborn
+sklearn
+requests
+bs4
+ipykernel
+hydra-core
+
+# for pandas to read xlsx
+xlrd
+
+numpy

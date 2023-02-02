@@ -2,6 +2,3 @@
 data/
 *.csv
 *.xlsx
-
-# misc files
-*.txt
