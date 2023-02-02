@@ -1,11 +1,14 @@
 specs:
-  increment: 10000
-  data_gov_api : https://data.gov.sg/api/action/datastore_search
-  write_file_name : 'latest_data.csv'
+  limit: 500000
+  data_gov_api : "https://data.gov.sg/api/action/datastore_search"
+  write_file_name : "latest_data.csv"
+  onemap_api : "https://developers.onemap.sg/commonapi/search"
+  mrt_api : "https://datamall.lta.gov.sg/content/dam/datamall/datasets/PublicTransportRelated/Train%20Station%20Codes%20and%20Chinese%20Names.zip"
+  mrt_excel_file: "Train Station Codes and Chinese Names.xls"
 
 resource_mapping:
-  Jan2017-Beyond : f1765b54-a209-4718-8d38-a39237f502b3
-  Jan2015-Dec2016 : 1b702208-44bf-4829-b620-4615ee19b57c
-  Mar2012-Dec2014 : 83b2fc37-ce8c-4df4-968b-370fd818138b
-  Yr2000-Feb2012 : 8c00bf08-9124-479e-aeca-7cc411d884c4
-  Yr1990-1999 : adbbddd3-30e2-445f-a123-29bee150a6fe
+  post2017 : "f1765b54-a209-4718-8d38-a39237f502b3"
+  jan2015todec2016 : "1b702208-44bf-4829-b620-4615ee19b57c"
+  mar2012todec2014 : "83b2fc37-ce8c-4df4-968b-370fd818138b"
+  jan2000tofeb2012 : "8c00bf08-9124-479e-aeca-7cc411d884c4"
+  pre1999 : "adbbddd3-30e2-445f-a123-29bee150a6fe"
