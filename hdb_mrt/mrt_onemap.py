@@ -100,11 +100,11 @@ def return_mrt_with_geo(one_map_url:str,stations:pd.DataFrame)->pd.DataFrame:
                 
                 # only keep the address if the search val matches and there is nothing in the result
                 if (station_name in res['SEARCHVAL'].lower()) and (station_name not in geo_details): 
-                    entry = {'station_code': station_code, 'address': full_add, 'lat': lat, 'long': long}
+                    entry = {'stn_code': station_code, 'address': full_add, 'lat': lat, 'long': long}
                     geo_details[station_name] = entry
                     
             except Exception as e:
-                logging.info(f"Search for {station_name} {train} skipped")
+                logging.debug(f"Search for {station_name} {train} skipped")
     
     stations_pd = pd.DataFrame(geo_details).T.reset_index().rename(columns={'index':'station_name'})
 
@@ -113,18 +113,13 @@ def return_mrt_with_geo(one_map_url:str,stations:pd.DataFrame)->pd.DataFrame:
 
 
 
-def appends_geo_to_hdbdata(hdb_df:pd.DataFrame):
-    """Takes the address from the address column of the Hdb data, 
-    searches in onemapsg and returns the lat and long and the full 
-    address. For addresses without this information it will state
-    na
+def return_unique_address_geo_mrt_post_pre2000(hdb_df:pd.DataFrame, ):
+    """Takes all of the HDB data, 
     """
 
     # searches for unique address. No point searching twice for the same data
     hdb_df['address'] = hdb_df['block'] + " " + hdb_df['street_name']
     unique_address = hdb_df['address'].unique()
-
-    
 
     pass
 

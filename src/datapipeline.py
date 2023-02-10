@@ -2,58 +2,95 @@ from sklearn.preprocessing import StandardScaler, OrdinalEncoder, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
 
-RANDOM_STATE = 42
-ordinal_ranking_flat_type = ['MULTI GENERATION','EXECUTIVE', '5 ROOM','4 ROOM', '3 ROOM','2 ROOM', '1 ROOM']
 ordinal_ranking_storey_range = [ '01 TO 03','01 TO 05','04 TO 06', '06 TO 10', '07 TO 09', '10 TO 12','11 TO 15', '13 TO 15',
         '16 TO 18','16 TO 20','19 TO 21','21 TO 25', '22 TO 24', '25 TO 27', '26 TO 30', '28 TO 30',
        '31 TO 33','31 TO 35','34 TO 36',  '37 TO 39', '36 TO 40', '40 TO 42', '43 TO 45', '46 TO 48','49 TO 51']
-       
+
+class AddFeatures(BaseEstimator, TransformerMixin):
+    def __init__(self, year:bool = True, month:bool = True,postal_code:bool = True) -> None:
+        self.year = year
+        self.month = month
+        self.postal_code = postal_code
+    def fit(self, X, y=None):
+        return self
+    def transform(self, X, y=None):
+        if self.year:
+            X['year'] = pd.to_datetime(X['month']).dt.year
+        if self.month:
+            X['month'] = pd.to_datetime(X['month']).dt.month
+        if self.postal_code:
+            X['postal_code'] = X['full_address'].apply(lambda x:x[-6:])
+            X['postal_code'] = pd.to_numeric(X['postal_code'], errors='coerce')
+            X.dropna(axis=0, inplace=True)
+            X['postal_code'] = X['postal_code'].astype(int)
+        return X
+
+class Conversion(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+    def transform(self, X, y=None):
+        X['remaining_lease'] = X['remaining_lease'].astype(str).str[:2].astype(int)
+        X['floor_area_sqm'] = X['floor_area_sqm'].astype(float)
+        return X
 
 class DataPipeline():
 
-    def __init__(self):
-        ORDINAL_FEATURES = ["storey_range","flat_type"]
-        CAT_FEATURES = ["town"]
-        NUM_FEATURES = ["remaining_lease","floor_area_sqm","month"]
+    def __init__(self, addfeature:bool = True,seed:int=42,test_size:float=0.33):
+        self.test_size = test_size
+        self.seed = seed
+        self.ORDINAL_FEATURES = ["storey_range"]
+        self.CAT_FEATURES = ["town", "nearest_mrt", "flat_model","flat_type"]
+        self.NUM_FEATURES = ["remaining_lease","floor_area_sqm","month", "year",\
+             "lat", "long", "postal_code","nearest_distance_to_mrt"]
         self.TARGET = "resale_price"
 
-        ordinal_pipe = OrdinalEncoder(categories=[ordinal_ranking_storey_range,ordinal_ranking_flat_type])
+        ordinal_pipe = OrdinalEncoder(categories=[ordinal_ranking_storey_range])
         cat_pipe = OneHotEncoder(drop='first', sparse=False)
         num_pipe = StandardScaler()
+        convert_pipe = Conversion()
+        addfeature_pipe = AddFeatures()
 
-        self.datapipe = ColumnTransformer([
-            ('cat_pipe',cat_pipe , CAT_FEATURES),
-            ('num_pipe',num_pipe, NUM_FEATURES),
-            ('ordinal_pipe', ordinal_pipe, ORDINAL_FEATURES)
-            ])    
+        if addfeature==False:
+            self.NUM_FEATURES.remove('postal_code')
+            self.NUM_FEATURES.remove('year')
 
-    def __dropcols(self, df):
-        df.drop(columns=['_id','lease_commence_date','street_name','block', 'flat_model'], inplace=True)
-        return df
+        column_pipe = ColumnTransformer([
+            ('cat_pipe',cat_pipe , self.CAT_FEATURES),
+            ('num_pipe',num_pipe, self.NUM_FEATURES),
+            ('ordinal_pipe', ordinal_pipe, self.ORDINAL_FEATURES)
+            ], remainder='drop')
 
-    def __conversions(self, df):
-        df['remaining_lease'] = df['remaining_lease'].astype(str).str[:2].astype(int)
-        df['floor_area_sqm'] = df['floor_area_sqm'].astype(float)
-        df['resale_price'] = df['resale_price'].astype(float)
-        df['month'] = pd.to_datetime(df['month']).dt.year
+        add_features_pipe = Pipeline([
+            ('add_features', addfeature_pipe),
+            ('conversion', convert_pipe)
+        ])
 
-        return df
+        if addfeature:
+            self.datapipe = Pipeline([
+                ('add_features_conversion', add_features_pipe),
+                ('column_transformer', column_pipe)
+            ]) 
 
-    def __preprocess(self,df):
-        df['flat_type'] = df['flat_type'].str.replace('MULTI-GENERATION','MULTI GENERATION')
-        return df
+        else:
+            self.datapipe = Pipeline([
+                ('conversion', convert_pipe),
+                ('column_transformer', column_pipe)
+            ]) 
 
-    def __split(self, df:pd.DataFrame):
+    def _split(self, df:pd.DataFrame):
         y = df.pop(self.TARGET)
         X = df
 
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=RANDOM_STATE)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=self.test_size, \
+            random_state=self.seed)
 
         return X_train, X_test, y_train, y_test
 
-    def __run_ct(self, X_train, X_test):
+    def _run_ct(self, X_train, X_test):
         X_train = self.datapipe.fit_transform(X_train)
         X_test = self.datapipe.transform(X_test)
 
@@ -68,11 +105,8 @@ class DataPipeline():
             the entire DataFrame
         y : None, Ignored
         """
-        df = self.__dropcols(df)
-        df = self.__conversions(df)
-        df = self.__preprocess(df)
-        X_train, X_test, y_train, y_test = self.__split(df)
+        X_train, X_test, y_train, y_test = self._split(df)
 
-        X_train, X_test = self.__run_ct(X_train, X_test)
+        X_train, X_test = self._run_ct(X_train, X_test)
 
         return X_train, X_test, y_train, y_test

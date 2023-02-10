@@ -7,7 +7,7 @@ from io import BytesIO
 import requests
 import logging 
 
-def retrieve_record(url_base:str, resource_id:str, limit:int, )-> dict:
+def retrieve_record(url_base:str, resource_id:str, limit:int,add_remaining_lease:bool= False)-> pd.DataFrame:
     """returns a Dataframe from the base url under the resource id
     up to the limit specified. 
 
@@ -30,7 +30,13 @@ def retrieve_record(url_base:str, resource_id:str, limit:int, )-> dict:
         data = response.json()
         data = data['result']['records'] # data only found in records under result
 
-        return data
+        data_pd = pd.DataFrame(data)
+        data_pd['address'] = data_pd['block'] + ' ' + data_pd['street_name']
+
+        if add_remaining_lease:
+            data_pd['remaining_lease'] = 99 - (pd.to_datetime(data_pd['month']).dt.year - data_pd['lease_commence_date'].astype(int))
+
+        return data_pd
 
     except Exception as e:
         logging.error(f'Unable to retrieve records due to {e}')
@@ -64,12 +70,13 @@ def retrieve_records(url_base:str, urls: List[str],limit:int)->pd.DataFrame:
             return None
 
 
-    # 2017 to 2014 records with additional column 'remaining lease'
+    # 2014 and before 
     df_part1 = pd.concat((
         pd.DataFrame(list_of_results[0]),
         pd.DataFrame(list_of_results[1]),
         pd.DataFrame(list_of_results[2])), axis=0)
-    # 2014 and before 
+
+    # 2017 to 2014 records with additional column 'remaining lease'
     df_part2 = pd.concat((
         pd.DataFrame(list_of_results[3]),
         pd.DataFrame(list_of_results[4])), axis=0)
@@ -83,58 +90,3 @@ def retrieve_records(url_base:str, urls: List[str],limit:int)->pd.DataFrame:
     df_combined = pd.concat((df, df2))
 
     return df_combined
-
-def download_mrt_excelsheet(url:str)->None:
-    """
-    Takes the URL and downloads the xlsx file in memory and extract the files
-    """
-    r = requests.get(url)
-    z = zipfile.ZipFile(BytesIO(r.content))
-    z.extractall()
-
-def extract_mrt_excelsheet(default_file_name:str = "Train Station Codes and Chinese Names.xls")->pd.DataFrame:
-    download_mrt_excelsheet()
-    return pd.read_excel(default_file_name)
-
-def return_geo_details(address_list:List[str])->List[str]:
-    geo_details = []
-    ONE_MAP_API_ADDRESS = "https://developers.onemap.sg/commonapi/search"
-    for address in address_list:
-        payload = {'searchVal': address,
-        'returnGeom': 'Y',
-        'getAddrDetails': 'Y',
-        'pageNum':1}
-
-        res= requests.get(ONE_MAP_API_ADDRESS, params=payload)
-
-        try:
-            res = res.json()['results'][0] # get only the first result
-            full_add = res['ADDRESS']
-            lat = float(res['LATITUDE'])
-            long = float(res['LONGITUDE'])
-            geo_details.append([full_add, lat, long])
-        except:
-            geo_details.append(['data unavailable','data unavailable','data unavailable'])
-    
-    return geo_details
-
-
-def return_one_address(query:str)->dict:
-    ONE_MAP_API_ADDRESS = "https://developers.onemap.sg/commonapi/search"
-    payload = {'searchVal': query,
-    'returnGeom': 'Y',
-    'getAddrDetails': 'Y',
-    'pageNum':1}
-
-    res= requests.get(ONE_MAP_API_ADDRESS, params=payload)
-
-    try:
-        res = res.json()['results'][0] # get only the first result
-        full_add = res['ADDRESS']
-        lat = float(res['LATITUDE'])
-        long = float(res['LONGITUDE'])
-        entry = {'address': full_add, 'lat': lat, 'long': long}
-    except Exception as e:
-        print(f'No results due to {e}')
-    
-    return entry
