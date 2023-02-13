@@ -4,10 +4,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
 
-ordinal_ranking_storey_range = [ '01 TO 03','01 TO 05','04 TO 06', '06 TO 10', '07 TO 09', '10 TO 12','11 TO 15', '13 TO 15',
-        '16 TO 18','16 TO 20','19 TO 21','21 TO 25', '22 TO 24', '25 TO 27', '26 TO 30', '28 TO 30',
-       '31 TO 33','31 TO 35','34 TO 36',  '37 TO 39', '36 TO 40', '40 TO 42', '43 TO 45', '46 TO 48','49 TO 51']
 
 class AddFeatures(BaseEstimator, TransformerMixin):
     def __init__(self, year:bool = True, month:bool = True,postal_code:bool = True) -> None:
@@ -24,7 +22,7 @@ class AddFeatures(BaseEstimator, TransformerMixin):
         if self.postal_code:
             X['postal_code'] = X['full_address'].apply(lambda x:x[-6:])
             X['postal_code'] = pd.to_numeric(X['postal_code'], errors='coerce')
-            X.dropna(axis=0, inplace=True)
+            X['postal_code'].fillna(0, axis=0, inplace=True)
             X['postal_code'] = X['postal_code'].astype(int)
         return X
 
@@ -46,26 +44,31 @@ class DataPipeline():
         self.NUM_FEATURES = ["remaining_lease","floor_area_sqm","month", "year",\
              "lat", "long", "postal_code","nearest_distance_to_mrt"]
         self.TARGET = "resale_price"
+        self.POSSIBLE_NA_FEATURE = ["postal_code"]
+        self.ordinal_ranking_storey_range = [ '01 TO 03','01 TO 05','04 TO 06', '06 TO 10', '07 TO 09', '10 TO 12','11 TO 15', '13 TO 15',
+        '16 TO 18','16 TO 20','19 TO 21','21 TO 25', '22 TO 24', '25 TO 27', '26 TO 30', '28 TO 30',
+       '31 TO 33','31 TO 35','34 TO 36',  '37 TO 39', '36 TO 40', '40 TO 42', '43 TO 45', '46 TO 48','49 TO 51']
 
-        ordinal_pipe = OrdinalEncoder(categories=[ordinal_ranking_storey_range])
-        cat_pipe = OneHotEncoder(drop='first', sparse=False)
-        num_pipe = StandardScaler()
-        convert_pipe = Conversion()
-        addfeature_pipe = AddFeatures()
+        self.ordinal_pipe = OrdinalEncoder(categories=[self.ordinal_ranking_storey_range])
+        self.cat_pipe = OneHotEncoder(drop='first', sparse=False)
+        self.num_pipe = StandardScaler()
+        self.convert_pipe = Conversion()
+        self.addfeature_pipe = AddFeatures()
+        self.simpleimputer = SimpleImputer(strategy="median")
 
         if addfeature==False:
             self.NUM_FEATURES.remove('postal_code')
             self.NUM_FEATURES.remove('year')
 
         column_pipe = ColumnTransformer([
-            ('cat_pipe',cat_pipe , self.CAT_FEATURES),
-            ('num_pipe',num_pipe, self.NUM_FEATURES),
-            ('ordinal_pipe', ordinal_pipe, self.ORDINAL_FEATURES)
+            ('cat_pipe',self.cat_pipe , self.CAT_FEATURES),
+            ('num_pipe',self.num_pipe, self.NUM_FEATURES),
+            ('ordinal_pipe', self.ordinal_pipe, self.ORDINAL_FEATURES)
             ], remainder='drop')
 
         add_features_pipe = Pipeline([
-            ('add_features', addfeature_pipe),
-            ('conversion', convert_pipe)
+            ('add_features', self.addfeature_pipe),
+            ('conversion', self.convert_pipe)
         ])
 
         if addfeature:
@@ -76,7 +79,7 @@ class DataPipeline():
 
         else:
             self.datapipe = Pipeline([
-                ('conversion', convert_pipe),
+                ('conversion', self.convert_pipe),
                 ('column_transformer', column_pipe)
             ]) 
 

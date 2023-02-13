@@ -150,6 +150,7 @@ def main(args):
         unique_address_geo.append([address, geo_details[idx][0],geo_details[idx][1],geo_details[idx][2]])
     unique_address_geo_pd = pd.DataFrame(unique_address_geo)
     unique_address_geo_pd.columns = ('address','full_address','lat','long')
+
     logging.info("Done retrieving unique addresses geo data")
 
     unique_address_geo_pd_valid = unique_address_geo_pd[unique_address_geo_pd['full_address'] != 'na']
@@ -170,10 +171,6 @@ def main(args):
 
     logging.debug(f"Sample of data from pre2000 hdb {pre2000_hdb.sample(5)}")
     logging.debug(f"Sample of data from post2017 HDB {post2017_hdb.sample(5)}")
-
-    ###########################################
-    #######         MRT                 #######
-    ###########################################
 
     logging.info("Gathering MRT data ...")
     stations = mrt_onemap.extract_mrt_excelsheet(mrt_api,mrt_excel_file)
@@ -205,10 +202,6 @@ def main(args):
     hdb_df_geo = pd.concat([post2000_hdb_valid_w_geo, pre2000_hdb_valid_w_geo], axis=0)
     hdb_df_geo.drop(columns='_id', inplace=True)
     logging.debug(f"Sample of data from combined HDB data with Geo information {hdb_df_geo.sample(5)}")
-
-    ###########################################
-    #######        Append Data          #######
-    ###########################################
 
 
     ###########################################

@@ -90,3 +90,4 @@ def retrieve_records(url_base:str, urls: List[str],limit:int)->pd.DataFrame:
     df_combined = pd.concat((df, df2))
 
     return df_combined
+
