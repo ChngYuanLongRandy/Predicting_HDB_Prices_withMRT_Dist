@@ -13,8 +13,8 @@ import requests.packages.urllib3.util.connection as urllib3_cn
 import os
 import json
 
-import hdb
-import mrt_onemap
+from . import hdb
+from . import mrt_onemap
 import logging
 
 
@@ -132,11 +132,13 @@ def main(args):
     """
 
     logging.info("Attempting to retrieve all HDB records...")
-    hdb_df = hdb.retrieve_records(data_gov_api, urls, limit)
-    # Manual transformation of certain addresses due to search logic
-    hdb_df['street_name'] = hdb_df['street_name'].where(hdb_df['street_name']!='MARINE CRES','MARINE CRESCENT VILLE') 
+    # hdb_df = hdb.retrieve_records(data_gov_api, urls, limit)
+    # # Manual transformation of certain addresses due to search logic
+    # hdb_df['street_name'] = hdb_df['street_name'].where(hdb_df['street_name']!='MARINE CRES','MARINE CRESCENT VILLE') 
 
-    unique_address = hdb_df['address'].unique()
+    # unique_address = hdb_df['address'].unique()
+
+    unique_address = mrt_onemap.generate_uniqueHDBaddresses(data_gov_api, urls, limit)
 
     logging.info("Done retrieving all HDB records and generating unique address")
     # This takes around 13 mins

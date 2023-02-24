@@ -5,7 +5,7 @@ import os
 class Settings (BaseSettings):
     API_NAME = "hdb_prediction"
     API_STR: str = os.environ.get("API_STR", "/api/v1")
-    MODEL_PATH: str = os.environ.get("MODEL_PATH", "app/api/v1/lgbm.pkl")
+    MODEL_PATH: str = os.environ.get("MODEL_PATH", "app/api/router/v1/tuned_lgbm_19k.pkl")
     DATA_PATH: str = os.environ.get("MODEL_PATH", "data/hdb_latest.csv")
     LIMIT: int = os.environ.get("LIMIT", 500000)
     DATA_GOV_API: str = os.environ.get("DATA_GOV_API", "https://data.gov.sg/api/action/datastore_search") 

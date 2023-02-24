@@ -12,6 +12,8 @@ from io import BytesIO
 
 import haversine.haversine as haversine
 
+from . import hdb
+
 def extract_mrt_excelsheet(mrt_api:str, mrt_excel_file:str)->pd.DataFrame:
     """Reads the zip file of the MRT train names in memory and
     returns a pd Dataframe of the data
@@ -41,6 +43,15 @@ def allowed_gai_family():
     family = socket.AF_INET    # force IPv4
     return family
 
+def generate_uniqueHDBaddresses(data_gov_api, urls, limit):
+    hdb_df = hdb.retrieve_records(data_gov_api, urls, limit)
+    # Manual transformation of certain addresses due to search logic
+    hdb_df['street_name'] = hdb_df['street_name'].where(hdb_df['street_name']!='MARINE CRES','MARINE CRESCENT VILLE') 
+
+    unique_address = hdb_df['address'].unique()
+
+    return unique_address
+
 def return_closest_mrt_distances(unique_address_geo_pd_valid:pd.DataFrame, stations_pd:pd.DataFrame)->pd.DataFrame:
     res = []
     for address in unique_address_geo_pd_valid.values:
@@ -53,6 +64,7 @@ def return_closest_mrt_distances(unique_address_geo_pd_valid:pd.DataFrame, stati
     combined_pd = pd.concat((unique_address_geo_pd_valid.reset_index(drop=True),pd.DataFrame(res)), axis=1, ignore_index=True)
 
     return combined_pd
+
 
 def return_closest_mrt_distance(coor:List[float], stations:pd.DataFrame)->dict:
     """ with one set of coordinates (lat, long) returns the minimum distance
@@ -142,7 +154,6 @@ def return_geo_many_address(one_map_url:str, address_list:List[str])->List[str]:
         geo_details.append([res['address'], res['lat'], res['long']])
     
     return geo_details
-
 
 def return_geo_one_address(one_map_url:str, query:str)->dict:
     """Return geo details of one address given an address
