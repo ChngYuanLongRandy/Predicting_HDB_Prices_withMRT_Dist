@@ -1,0 +1,13 @@
+# front-end
+streamlit
+
+# back-end
+fastapi
+uvicorn
+
+# Model
+scikit-learn
+xgboost
+lightgbm
+numpy
+haversine

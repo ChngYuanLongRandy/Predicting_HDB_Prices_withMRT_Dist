@@ -420,25 +420,7 @@ class Modelpipeline:
 
         self._add_features(inputs)
         self._convert_features(inputs)
-        
-        # dont need these guys for inference
 
-        # self.TARGET = "resale_price"
-        # self.NUM_FEATURES = self.dataset.select_dtypes(include=['float','int']).columns.tolist()
-        # self.NUM_FEATURES.remove(self.TARGET)
-        # self.DROP_FEATURES = ['street_name','block','address','full_address']
-        # self.ORDINAL_FEATURES = ["storey_range", "flat_type"]
-        # self.CAT_FEATURES = self.dataset.select_dtypes(exclude=['float','int']).columns.tolist()
-        # self.CAT_FEATURES = [feature for feature in self.CAT_FEATURES if feature not in self.ORDINAL_FEATURES]
-        # self.NEW_FEATURES = ['district']
-
-        # if self.dimension_reduction:
-        #     self.NEW_FEATURES.append('clustering_label')
-
-        # self.TOTAL_FEATURES = self.dataset.columns.tolist() + self.NEW_FEATURES
-        # self.FEATURES = self.NUM_FEATURES + [self.TARGET] + self.CAT_FEATURES + self.ORDINAL_FEATURES + self.NEW_FEATURES
-        # self.FEATURES_LIST = [self.NUM_FEATURES, self.CAT_FEATURES, self.ORDINAL_FEATURES, self.NEW_FEATURES]
-        # assert len(self.TOTAL_FEATURES) == len(self.FEATURES)
 
         if len(self.features_out) !=0:
             # drop from dataset

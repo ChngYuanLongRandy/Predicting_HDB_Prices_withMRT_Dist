@@ -21,7 +21,7 @@ datapath = 'data/hdb_latest.csv'
 
 dataset = pd.read_csv(datapath)
 
-def fetch_resources(input:dict)->Optional[pd.DataFrame]:
+def fetch_resources(input:dict, dataset:pd.DataFrame)->Optional[pd.DataFrame]:
     """
     takes the input from the user and returns the information available 
     from the dataset
@@ -53,8 +53,6 @@ def fetch_resources(input:dict)->Optional[pd.DataFrame]:
     nearest_mrt = res.nearest_mrt.values[0]
     nearest_distance_to_mrt = res.nearest_distance_to_mrt.values[0]
     full_address = res.full_address.values[0]
-
-    dataset = pd.read_csv(SETTINGS.dict()['DATA_PATH'])
 
     # only need the first item
     sample_data = dataset[(dataset.lat == lat) & (dataset.long == long) & (dataset.month.str.contains("20")) ].iloc[0,:]

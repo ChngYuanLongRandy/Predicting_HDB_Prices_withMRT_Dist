@@ -28,7 +28,7 @@ def main():
         'flat_type':flat_type
         }
 
-    complete_input = fetch_resources(input)
+    complete_input = fetch_resources(input,dataset)
 
     if button_click:
         if complete_input is not None:

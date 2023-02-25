@@ -2,3 +2,6 @@
 data/
 *.csv
 *.xlsx
+
+# Pycaches
+__pycache__*/

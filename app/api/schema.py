@@ -1,32 +1,19 @@
 from datetime import datetime
 from pydantic import BaseModel
 
-class Town(BaseModel):
-    text: str = "ANG MO KIO"
 
 class FlatType(BaseModel):
-    text: str = "3 ROOM"
-
-class FlatModel(BaseModel):
-    text: str = "Improved"
-
-class FloorAreaSqm(BaseModel):
-    text: float = 69.0
-
-class StreetName(BaseModel):
-    text: str = "ANG MO KIO AVE 4"
+    text: str = "4 ROOM"
 
 
-class Month(BaseModel):
-    # I am not sure how to validate a date,
-    # I'll put it as a string and see what happens
-    text: str = f"{datetime.now().year}-{datetime.now().month}"
-
-class LeaseCommenceDate(BaseModel):
-    text: int = 1987
+class PostalCode(BaseModel):
+    text: int = 560325
 
 
 class StoreyRange(BaseModel):
-    text: str = "07 TO 09"
+    text: str = "01 TO 03"
 
-class 
+class Input(BaseModel):
+    flat_type : FlatType
+    postal_code: PostalCode
+    storey_range: StoreyRange

@@ -4,4 +4,6 @@ channels:
 dependencies:
   - python=3.9
   - pip:
-    - -r requirements.txt
+    - -r eda-requirements.txt
+    - -r deploy-requirements.txt
+    - -r pipeline-requirements.txt
